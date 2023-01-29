@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>PlantZone</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="./iw-pos.js" type="text/javascript" charset="utf-8"></script>
+  <script src="./routemap.js" type="text/javascript" charset="utf-8"></script>
+  <script src="./helper.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+  <div id="app">
+    
+  </div>
+  <script type="text/javascript" charset="utf-8">
+  
+  class Root extends RouteMap {
+    #data = [];
+    #dataPath = [];
+    
+    #app = null;
+
+    #green = "#658354";
+    
+    #appTitle = "PlantZone";
+    
+    #tabsStyle = {
+      position: "fixed",
+      height: "50px",
+      background: "#ffffff",
+      width: "100%",
+      top: "0px",
+      left: "0px",
+      borderBottom: "1px solid #dddddd",
+      boxShadow: "0px 0px 2px #777777",
+    }
+    
+    #shadow = {
+      boxShadow: "0px 0px 2px #777777",
+    }
+    
+    #flexCenterAlign = {
+      display: "flex",
+      alignItems: "center",
+    }
+    
+    #gridColumnStyle = {
+      display: "grid",
+      width: "100%",
+    }
+    
+    #searchStyle = {
+      padding: "6px 12px",
+      outline: "none",
+      border: "1px solid #dddddd",
+      borderRadius: "12px",
+    }
+    
+    #insethadowLine = {
+      boxShadow: "inset 0px 0px 2px #dddddd"
+    }
+    
+    #searchContainerStyle = {
+      padding: "0 10px",
+    }
+    
+    #searchWidget(){
+      var n = el("input")
+      n.hold("search...").css(this.#searchStyle)
+      n.css(this.#insethadowLine)
+      return div().css(this.#gridColumnStyle).child(n);
+    }
+    
+    #tabBarMenus(){
+      
+    }
+    
+    #loadTab(){
+      var tabs = div()
+      .display("grid")
+      .css("grid-template-columns", "150px auto")
+      .css(this.#tabsStyle)
+      .child(
+        div().css(this.#flexCenterAlign).child(
+         h1()
+         .padding("0 10px")
+         .size("16px")
+         .child(
+          el('i').class("fa-solid fa-seedling")
+          .color('green')
+          .css('margin-right', '5px')
+         )
+         .child(
+          el('span').text(this.#appTitle)
+         )
+        )
+       )
+      .child(
+         div()
+         .css(this.#flexCenterAlign)
+         .css(this.#searchContainerStyle)
+         .child(this.#searchWidget())
+       )
+      this.#app.appendChild(
+       tabs.get()
+      )
+    }
+    
+    #columsContainer(nums = 2){
+      var total = 100;
+      var path = total / nums;
+      var temps = [];
+      var content = [];
+      for(
+        var x = 0;
+        x < nums;
+        x++
+      )
+      {
+        temps.push(path+"%")
+        content.push(div())
+      }
+      var grid = div()
+      grid.width("calc(100% - 10px)")
+      grid.display("grid")
+      grid.css("margin-top", "10px")
+      grid.css("grid-gap", "10px")
+      grid.css("grid-template-columns", temps.join(" "));
+      content.forEach(function(c){
+        grid.child(
+          c
+        )
+      })
+      this.#app.appendChild(
+        grid.get()
+      )
+      // console.log(content)
+      return {
+        content: content,
+        grid: grid
+      }
+    }
+    
+    #cardImage={
+      height: "100%",
+      minHeight:"30px",
+      margin:"0",
+      padding:"0",
+      borderRadius:"8px",
+      //paddingBottom: "-5px",
+      background: "#4b6043"
+    }
+    
+    #cardClick(event){
+      event.stopPropagation()
+      alert("ok")
+    }
+    
+    #card(d){
+      var screen = d.product_media;
+      var img = screen[0].image;
+      var name = d.product_name
+      var n = div()
+      console.log(d)
+      n.css("padding","10px")
+      n.css("background","white")
+      n.css("margin-bottom","10px")
+      n.css("border-radius","4px")
+      n.css("box-shadow","0 0 2px rgba(105,105,105,0.5)")
+      .click(this.#cardClick)
+      n.child(
+        div()
+        .css(this.#cardImage)
+        .html(
+          "<img alt='"+name+"' style='display:inline-block;overflow:hidden;border-radius:8px;margin:0;padding:0;' width='100%'src='"+img+"'></img>"
+        )
+      )
+      n.child(
+        el("h3")
+          .css('font-weight','500')
+          .margin("0")
+          .css('margin-top','5px')
+          .css('margin-bottom','5px')
+          .size("12px")
+          .child(
+            el('i')
+            .class("fas fa-leaf").color(this.#green)
+            .css('margin-right', '2px')
+          )
+          .child(
+            el('span')
+            .text(name)
+          )
+      )
+      n.child(
+        el('p').color("#658354").size('14px').margin('0')
+        .child(
+          el('span').text("$")
+        )
+        .child(
+          el('span').text(d.price.number(2).currency(2))
+        )
+      )
+      return n;
+    }
+    
+    #numDataLoad = 0;
+    
+    #loadDataCard(columns){
+      var data = this.#dataPath[this.#numDataLoad];
+      // console.log(data)
+      var e = 0;
+      var col = columns.length;
+      var obj = this;
+      data.forEach(function(d){
+        var cols = null;
+        if(e == (col - 1) ){
+          cols = columns[e];
+          e = -1;
+        }else{
+          cols = columns[e]
+        }
+        cols.get().appendChild(
+          div().child(obj.#card(d)).get()
+        )
+        e++;
+      })
+      // console.log(columns)
+    }
+    
+    #loadContent(){
+      // 2 columns default
+      var app = this.#app;
+      var columns = this.#columsContainer(2).content;
+      this.#loadDataCard(columns)
+    }
+    
+    #bagiData(data, nums=20){
+      var newPath = [];
+      var bagi = [];
+      var t = 1;
+      data.data.forEach(function(r,i){
+        if(i == (data.data.length - 1) || t == nums )
+        {
+          t++;
+          bagi.push(r)
+          newPath.push(bagi)
+          bagi = []
+          t = 1;
+        }else{
+          t++;
+          bagi.push(r)
+        }
+      })
+      return newPath;
+    }
+
+    #tabBottom(){
+      var app = this.#app;
+      var n = div()
+      .css({
+        position: 'fixed',
+        height: '50px',
+        width: '100%',
+        bottom: '0',
+        right: '0',
+        background: 'white',
+        borderTopRightRadius: '8px',
+        borderTopLeftRadius: '8px',
+      }).css(this.#shadow)
+      .css(this.#flexCenterAlign)
+      .css('justify-content', 'center')
+      .child(
+        div()
+        .css({
+          borderRadius: "10px",
+          padding: "8px 15px",
+          margin: "0px 10px",
+          minWidth: "120px",
+          color: this.#green,
+          textAlign: "center",
+          border: "1px dotted green",
+        })
+        .child(
+          el('i').class('fas fa-heart').css('margin-right', '8px')
+        )
+        .child(
+          el('span').text('favorit')
+        )
+      )
+      .child(
+        div().html('<i class="fa-solid fa-leaf"></i>').size('10px').margin('0 5px').color(this.#green)
+      )
+      .child(
+        div()
+        .click(function(event){
+          event.stopPropagation();
+          alert('ok')
+        })
+        .css({
+          borderRadius: "10px",
+          padding: "8px 15px",
+          margin: "0px 10px",
+          minWidth: "120px",
+          background: this.#green,
+          textAlign: "center",
+          color: "white",
+          border: "1px dotted green",
+        })
+        .child(
+          el('i').class('fas fa-message').css('margin-right', '8px')
+        )
+        .child(
+          el('span').text('Pesan Sekarang')
+        )
+      )
+
+      app.appendChild(n.get())
+
+    }
+    
+    start(data, id){
+      document.body.style.background = "#cedae6"
+      document.body.style.paddingTop = "50px"
+      document.body.style.paddingBottom = "50px"
+      this.#data = data;
+      this.#dataPath = this.#bagiData(data)
+      this.#app = document.getElementById(id);
+      el(this.#app)
+      .css("width","100%")
+      //.background("#ddd")
+      this.#loadTab()
+      this.#tabBottom()
+      this.#loadContent()
+    }
+    
+  }
+  
+   fetch('./products.json')
+   .then(function(r){
+     return r.json()
+   })
+   .then(function(r){
+     var home = new Root()
+     home.start(r, "app");
+   })
+  </script>
+</body>
+</html>
