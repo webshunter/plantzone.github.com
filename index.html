@@ -6,6 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>PlantZone</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="./style.css">
   <script src="./iw-pos.js" type="text/javascript" charset="utf-8"></script>
   <script src="./routemap.js" type="text/javascript" charset="utf-8"></script>
   <script src="./helper.js" type="text/javascript" charset="utf-8"></script>
@@ -145,7 +146,7 @@
     
     #cardImage={
       height: "100%",
-      minHeight:"30px",
+      minHeight:"150px",
       margin:"0",
       padding:"0",
       borderRadius:"8px",
@@ -163,7 +164,7 @@
       var img = screen[0].image;
       var name = d.product_name
       var n = div()
-      console.log(d)
+      //console.log(d)
       n.css("padding","10px")
       n.css("background","white")
       n.css("margin-bottom","10px")
@@ -210,30 +211,39 @@
     
     #loadDataCard(columns){
       var data = this.#dataPath[this.#numDataLoad];
-      // console.log(data)
-      var e = 0;
-      var col = columns.length;
-      var obj = this;
-      data.forEach(function(d){
-        var cols = null;
-        if(e == (col - 1) ){
-          cols = columns[e];
-          e = -1;
-        }else{
-          cols = columns[e]
-        }
-        cols.get().appendChild(
-          div().child(obj.#card(d)).get()
-        )
-        e++;
-      })
-      // console.log(columns)
+      if(data != undefined){
+        var e = 0;
+        var col = columns.length;
+        var obj = this;
+        data.forEach(function(d){
+          var cols = null;
+          if(e == (col - 1) ){
+            cols = columns[e];
+            e = -1;
+          }else{
+            cols = columns[e]
+          }
+          cols.get().appendChild(
+            div().child(obj.#card(d)).get()
+          )
+          e++;
+        })
+        this.#numDataLoad++;
+      }
+      return this;
     }
+
+    loadDataCard(){
+      this.#loadDataCard(this.#activeCol);
+    }
+
+    #activeCol = null;
     
     #loadContent(){
       // 2 columns default
       var app = this.#app;
       var columns = this.#columsContainer(2).content;
+      this.#activeCol = columns;
       this.#loadDataCard(columns)
     }
     
@@ -291,7 +301,11 @@
         )
       )
       .child(
-        div().html('<i class="fa-solid fa-leaf"></i>').size('10px').margin('0 5px').color(this.#green)
+        div()
+          .html('<i class="fa-solid fa-leaf"></i>')
+          .size('10px')
+          .margin('0 5px')
+          .color(this.#green)
       )
       .child(
         div()
@@ -320,8 +334,86 @@
       app.appendChild(n.get())
 
     }
+
+    #cekActioScroll = 0;
+
+    cekScrol(){
+      return this.#cekActioScroll;
+    }
+
+    cekLastLoad(){
+      var t = this.#numDataLoad;
+      var y = this.#dataPath.length - 1;
+      var s = true;
+      if(t > y){
+        s = false;
+      }
+      return s;
+    }
     
+    #bodyScrollEvent(event){
+      var obj = window.RouteAction;
+      if (
+        window.scrollY + window.innerHeight 
+          >= 
+        document.body.scrollHeight
+      ) {
+        // do something when user has scrolled to the end
+        var tClick = globalThis['actionHiden'].parent;
+
+        if(obj.cekScrol() === 0){
+          if(obj.cekLastLoad() === true){
+            tClick.click()
+          }
+        }
+      }
+    }
+
+    #scrollLast = 0;
+
+    finishScrolAct(){
+      var last = this.#scrollLast;
+      globalThis['loaderDoc'].parent.style.display = 'none';
+      this.#cekActioScroll = 0;
+    }
+    
+    startScrolAct(){
+      this.#scrollLast = (document.body.scrollHeight - 5)
+      globalThis['loaderDoc'].parent.style.display = 'block';
+      setTimeout(function(){
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+      this.#cekActioScroll = 1;
+    }
+
+
+    #hiddenClick(event){
+      var obj = window.RouteAction;
+      obj.startScrolAct()
+      setTimeout(function(){
+        obj.finishScrolAct();
+        obj.loadDataCard();
+      },1000)
+      console.log("area")
+    }
+
     start(data, id){
+      document.body.appendChild(
+        div()
+          .id("loaderDoc")
+          .display('none')
+          .align('center')
+          .html('<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>')
+          .get()
+      )
+      window.RouteAction = this;
+      document.body.onscroll = this.#bodyScrollEvent
+      document.body.appendChild(
+        el('span')
+          .addModule('obj', this)
+          .id('actionHiden')
+          .click(delay(this.#hiddenClick,500)).get()
+      )
       document.body.style.background = "#cedae6"
       document.body.style.paddingTop = "50px"
       document.body.style.paddingBottom = "50px"
