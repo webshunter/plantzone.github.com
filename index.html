@@ -241,13 +241,23 @@
     
     #loadContent(){
       // 2 columns default
+      var col = 2;
+
+      if(window.innerWidth > 1024){
+        col = 4;
+      }
+      
+      if(window.innerWidth <= 1024 && window.innerWidth >= 800){
+        col = 3;
+      }
+
       var app = this.#app;
-      var columns = this.#columsContainer(2).content;
+      var columns = this.#columsContainer(col).content;
       this.#activeCol = columns;
       this.#loadDataCard(columns)
     }
     
-    #bagiData(data, nums=20){
+    #bagiData(data, nums=24){
       var newPath = [];
       var bagi = [];
       var t = 1;
