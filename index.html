@@ -123,8 +123,19 @@
         temps.push(path+"%")
         content.push(div())
       }
+
+      /*
+        gap : 10;
+        2 kolom
+
+        gap : 30
+        4kolom
+      */
+
+      var gap = (nums - 1) * 10;
+
       var grid = div()
-      grid.width("calc(100% - 10px)")
+      grid.width("calc(100% - "+gap+"px)")
       grid.display("grid")
       grid.css("margin-top", "10px")
       grid.css("grid-gap", "10px")
