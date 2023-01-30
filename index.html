@@ -36,6 +36,7 @@
       left: "0px",
       borderBottom: "1px solid #dddddd",
       boxShadow: "0px 0px 2px #777777",
+      zIndex: "99",
     }
     
     #shadow = {
@@ -167,7 +168,10 @@
     
     #cardClick(event){
       event.stopPropagation()
-      alert("ok")
+      var h = event.target.h
+      var d = event.target.d
+      var all = h.#data;
+      h.#openDetail(d, h)
     }
     
     #card(d){
@@ -176,12 +180,14 @@
       var name = d.product_name
       var n = div()
       //console.log(d)
+      n.cursor('pointer')
+      n.position('relative')
       n.css("padding","10px")
       n.css("background","white")
       n.css("margin-bottom","10px")
       n.css("border-radius","4px")
       n.css("box-shadow","0 0 2px rgba(105,105,105,0.5)")
-      .click(this.#cardClick)
+      
       n.child(
         div()
         .css(this.#cardImage)
@@ -214,6 +220,20 @@
         .child(
           el('span').text(d.price.number(2).currency(2))
         )
+      )
+      .child(
+        div()
+        .css({
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          background: 'transparent',
+          width: '100%',
+          height: '100%',
+        })
+        .addModule('d', d)
+        .addModule('h', this)
+        .click(this.#cardClick)
       )
       return n;
     }
@@ -300,6 +320,7 @@
         background: 'white',
         borderTopRightRadius: '8px',
         borderTopLeftRadius: '8px',
+        zIndex: '99',
       }).css(this.#shadow)
       .css(this.#flexCenterAlign)
       .css('justify-content', 'center')
@@ -418,6 +439,80 @@
       console.log("area")
     }
 
+    #isMobile(){
+      var r = false;
+      if(window.innerWidth < 500){
+        r = true;
+      }
+      return r;
+    }
+
+    #elementDetail = null;
+    #elementDetailBody = null;
+
+    #openDetail(){
+      var body = this.#elementDetailBody;
+      this.#elementDetail.style.display = 'grid';
+    }
+
+    #detail(){
+      var h = div().position('fixed')
+      this.#elementDetail = h.get();
+      var head = div().display('flex')
+      .css(this.#flexCenterAlign)
+      .css(this.#shadow)
+      .child(
+        el('i').class('fas fa-times')
+        .padding('0 10px')
+        .size('18px')
+        .cursor('pointer')
+        .css('font-weight', '600')
+        .addModule('h', h.get())
+        .click(function(){
+          this.h.style.display = 'none'
+        })
+      )
+
+      if(this.#isMobile() === true){
+        head = div().display('flex')
+          .css(this.#flexCenterAlign)
+          .css(this.#shadow)
+          .child(
+            el('span').text('close')
+          )
+          .css('justify-content', 'center')
+          .addModule('h', h.get())
+          .click(function(){
+            this.h.style.display = 'none'
+          })
+      }
+
+      var body = div().background("#cedae6")
+
+      this.#elementDetailBody = body.get();
+      
+        h.bottom(0)
+        h.left(0)
+        h.height("100vh")
+        h.width("100vw")
+        h.display("none")
+        h.background("white")
+        h.css("z-index", "999")
+        h.css("overflow-x", "hidden")
+        h.css("overflow-y", "auto")
+        if(this.#isMobile() === true){
+          h.css("grid-template-rows", "auto 50px")
+          h.child(body)
+          h.child(head)
+        }else{
+          h.css("grid-template-rows", "50px auto")
+          h.child(head)
+          h.child(body)
+        }
+
+        document.body.appendChild(h.get())
+    }
+
     start(data, id){
       document.body.appendChild(
         div()
@@ -447,6 +542,7 @@
       this.#loadTab()
       this.#tabBottom()
       this.#loadContent()
+      this.#detail()
     }
     
   }
