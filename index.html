@@ -7,6 +7,7 @@
   <title>PlantZone</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./font/pacifico.css">
   <script src="./iw-pos.js" type="text/javascript" charset="utf-8"></script>
   <script src="./routemap.js" type="text/javascript" charset="utf-8"></script>
   <script src="./helper.js" type="text/javascript" charset="utf-8"></script>
@@ -16,6 +17,13 @@
     
   </div>
   <script type="text/javascript" charset="utf-8">
+
+  const color = {
+    lightGrey : "#fefefe",
+    darkGrey : "#596267",
+    darkisGrey : "#292b2c",
+    black : "#000",
+  }
   
   class Root extends RouteMap {
     #data = [];
@@ -30,6 +38,8 @@
     #tabsStyle = {
       position: "fixed",
       height: "50px",
+      maxHeight: "50px",
+      overflow: "hidden",
       background: "#ffffff",
       width: "100%",
       top: "0px",
@@ -54,6 +64,8 @@
     }
     
     #searchStyle = {
+      width: "calc(100% - 24px)",
+      maxWidth: "420px",
       padding: "6px 12px",
       outline: "none",
       border: "1px solid #dddddd",
@@ -69,9 +81,22 @@
     }
     
     #searchWidget(){
-      var n = el("input")
-      n.hold("search...").css(this.#searchStyle)
-      n.css(this.#insethadowLine)
+      var n = div()
+      .css('display', 'grid')
+      .css('grid-template-columns', '150px auto 150px')
+      .child(
+        div()
+      )
+      .child(
+        div().align('center').child(
+          el("input")
+          .hold("search...").css(this.#searchStyle)
+          .css(this.#insethadowLine)
+        )
+      )
+      .child(
+        div()
+      )
       return div().css(this.#gridColumnStyle).child(n);
     }
     
@@ -81,11 +106,19 @@
     
     #loadTab(){
       var tabs = div()
-      .display("grid")
-      .css("grid-template-columns", "150px auto")
+      .display("block")
       .css(this.#tabsStyle)
       .child(
-        div().css(this.#flexCenterAlign).child(
+        div().css(this.#flexCenterAlign)
+        .css('position', 'relative')
+        .css('justify-content', 'center')
+        .child(
+          el('i').class('fas fa-search').css({
+            position: 'absolute',
+            left: '10px',
+          })
+        )
+        .child(
          h1()
          .padding("0 10px")
          .size("16px")
@@ -95,12 +128,22 @@
           .css('margin-right', '5px')
          )
          .child(
-          el('span').text(this.#appTitle)
+          el('span').class('pacifico').size('18px').text(this.#appTitle)
          )
+        )
+        .child(
+          div().css('clear', 'both')
         )
        )
       .child(
          div()
+         .css({
+          position: 'absolute',
+          top: '0',
+          height: '50px',
+          width: '100%',
+          background: color.lightGrey,
+         })
          .css(this.#flexCenterAlign)
          .css(this.#searchContainerStyle)
          .child(this.#searchWidget())

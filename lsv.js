@@ -2,7 +2,7 @@ var liveServer = require("live-server");
 
 var params = {
 	port: 8181, // Set the server port. Defaults to 8080.
-	host: "192.168.0.102", // Set the address to bind to. Defaults to 0.0.0.0 or process.env.IP.
+	host: "103.152.118.236", // Set the address to bind to. Defaults to 0.0.0.0 or process.env.IP.
 	root: "", // Set root directory that's being served. Defaults to cwd.
 	open: false, // When false, it won't load your browser by default.
 	ignore: 'scss,my/templates', // comma-separated string for paths to ignore

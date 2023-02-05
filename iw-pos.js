@@ -29,8 +29,7 @@ const el = function(el) {
         return this;
     }
     obj.text = function (a) {
-        this.el.className += ' disable-selection ';
-        this.el.style.fontFamily = "'Roboto', sans-serif";
+        this.el.style.userSelect = 'none';
         this.el.innerText = a;
         return this;
     }
